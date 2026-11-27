@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Kidney Disease Prediction | MedPredict AI{% endblock %}
+{% block page_heading %}Kidney Disease Diagnostic Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Hero Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-info text-dark px-3 py-1 rounded-pill">Model: Decision Tree Classifier</span>
+                                <span class="badge bg-secondary-subtle text-dark border">Dataset: kidney_disease.csv</span>
+                            </div>
+                            <h3 class="fw-bold text-dark mb-1">Chronic Kidney Disease (CKD) Assessment</h3>
+                            <p class="text-secondary mb-0">Input the nephrology biomarkers and clinical lab parameters to predict CKD presence.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Result (if submitted) -->
+    {% if prediction_text %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% if is_positive %}
+            <div class="result-card-positive shadow-sm">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill mb-2">
+                            <i class="bi bi-virus me-1"></i> Chronic Kidney Disease Detected
+                        </span>
+                        <h4 class="fw-bold text-danger mb-1">{{ prediction_text }}</h4>
+                        <p class="text-secondary mb-0">The diagnostic model detected indicators of chronic kidney disease.</p>
+                    </div>
+                    {% if risk_percentage is not none %}
+                    <div class="text-md-end">
+                        <div class="display-5 fw-bold text-danger">{{ risk_percentage }}%</div>
+                        <span class="text-muted small fw-medium">Estimated Risk Probability</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if risk_percentage is not none %}
+                <div class="probability-bar-wrapper">
+                    <div class="progress-bar bg-danger h-100" role="progressbar" style="width: {{ risk_percentage }}%;"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="result-card-negative shadow-sm">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <span class="badge bg-success fs-6 px-3 py-2 rounded-pill mb-2">
+                            <i class="bi bi-shield-check me-1"></i> Normal / Healthy Kidney Function
+                        </span>
+                        <h4 class="fw-bold text-success mb-1">{{ prediction_text }}</h4>
+                        <p class="text-secondary mb-0">The diagnostic model indicates normal renal parameters.</p>
+                    </div>
+                    {% if risk_percentage is not none %}
+                    <div class="text-md-end">
+                        <div class="display-5 fw-bold text-success">{{ risk_percentage }}%</div>
+                        <span class="text-muted small fw-medium">Estimated Risk Probability</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if risk_percentage is not none %}
+                <div class="probability-bar-wrapper">
+                    <div class="progress-bar bg-success h-100" role="progressbar" style="width: {{ risk_percentage }}%;"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Kidney Parameters Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1 text-dark">Nephrology Biomarkers (24 Parameters)</h5>
+                        <p class="text-muted small mb-0">Enter the patient laboratory urinalysis and blood chemistry values.</p>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('kidney') }}" method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="age">Age</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="age" name="age" placeholder="e.g. 48" value="{{ form_data.age if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="bp">Blood Pressure (bp)</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="bp" name="bp" placeholder="e.g. 80" value="{{ form_data.bp if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="sg">Specific Gravity (sg)</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="sg" name="sg" placeholder="e.g. 1.020" value="{{ form_data.sg if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="al">Albumin (al)</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="al" name="al" placeholder="e.g. 1" value="{{ form_data.al if form_data else '' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="su">Sugar (su)</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="su" name="su" placeholder="e.g. 0" value="{{ form_data.su if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="rbc">Red Blood Cells</label>
+                                    <select class="form-select form-control-custom" id="rbc" name="rbc" required>
+                                        <option value="1" {% if form_data and form_data.rbc == '1' %}selected{% endif %}>Normal (1)</option>
+                                        <option value="0" {% if form_data and form_data.rbc == '0' %}selected{% endif %}>Abnormal (0)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="pc">Pus Cell</label>
+                                    <select class="form-select form-control-custom" id="pc" name="pc" required>
+                                        <option value="1" {% if form_data and form_data.pc == '1' %}selected{% endif %}>Normal (1)</option>
+                                        <option value="0" {% if form_data and form_data.pc == '0' %}selected{% endif %}>Abnormal (0)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="pcc">Pus Cell Clumps</label>
+                                    <select class="form-select form-control-custom" id="pcc" name="pcc" required>
+                                        <option value="0" {% if form_data and form_data.pcc == '0' %}selected{% endif %}>Not Present (0)</option>
+                                        <option value="1" {% if form_data and form_data.pcc == '1' %}selected{% endif %}>Present (1)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="ba">Bacteria</label>
+                                    <select class="form-select form-control-custom" id="ba" name="ba" required>
+                                        <option value="0" {% if form_data and form_data.ba == '0' %}selected{% endif %}>Not Present (0)</option>
+                                        <option value="1" {% if form_data and form_data.ba == '1' %}selected{% endif %}>Present (1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="bgr">Blood Glucose Random</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="bgr" name="bgr" placeholder="e.g. 121" value="{{ form_data.bgr if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="bu">Blood Urea</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="bu" name="bu" placeholder="e.g. 36" value="{{ form_data.bu if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="sc">Serum Creatinine</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="sc" name="sc" placeholder="e.g. 1.2" value="{{ form_data.sc if form_data else '' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="sod">Sodium</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="sod" name="sod" placeholder="e.g. 111" value="{{ form_data.sod if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="pot">Potassium</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="pot" name="pot" placeholder="e.g. 2.5" value="{{ form_data.pot if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="hemo">Hemoglobin</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="hemo" name="hemo" placeholder="e.g. 15.4" value="{{ form_data.hemo if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="pcv">Packed Cell Volume</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="pcv" name="pcv" placeholder="e.g. 44" value="{{ form_data.pcv if form_data else '' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="wc">White Blood Cell Count</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="wc" name="wc" placeholder="e.g. 7800" value="{{ form_data.wc if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="rc">Red Blood Cell Count</label>
+                                    <input type="number" step="any" class="form-control form-control-custom" id="rc" name="rc" placeholder="e.g. 5.2" value="{{ form_data.rc if form_data else '' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="htn">Hypertension</label>
+                                    <select class="form-select form-control-custom" id="htn" name="htn" required>
+                                        <option value="1" {% if form_data and form_data.htn == '1' %}selected{% endif %}>Yes (1)</option>
+                                        <option value="0" {% if form_data and form_data.htn == '0' %}selected{% endif %}>No (0)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="dm">Diabetes Mellitus</label>
+                                    <select class="form-select form-control-custom" id="dm" name="dm" required>
+                                        <option value="1" {% if form_data and form_data.dm == '1' %}selected{% endif %}>Yes (1)</option>
+                                        <option value="0" {% if form_data and form_data.dm == '0' %}selected{% endif %}>No (0)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="cad">Coronary Artery Disease</label>
+                                    <select class="form-select form-control-custom" id="cad" name="cad" required>
+                                        <option value="0" {% if form_data and form_data.cad == '0' %}selected{% endif %}>No (0)</option>
+                                        <option value="1" {% if form_data and form_data.cad == '1' %}selected{% endif %}>Yes (1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="appet">Appetite</label>
+                                    <select class="form-select form-control-custom" id="appet" name="appet" required>
+                                        <option value="1" {% if form_data and form_data.appet == '1' %}selected{% endif %}>Good (1)</option>
+                                        <option value="0" {% if form_data and form_data.appet == '0' %}selected{% endif %}>Poor (0)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="pe">Pedal Edema</label>
+                                    <select class="form-select form-control-custom" id="pe" name="pe" required>
+                                        <option value="0" {% if form_data and form_data.pe == '0' %}selected{% endif %}>No (0)</option>
+                                        <option value="1" {% if form_data and form_data.pe == '1' %}selected{% endif %}>Yes (1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="param-card">
+                                    <label for="ane">Anemia</label>
+                                    <select class="form-select form-control-custom" id="ane" name="ane" required>
+                                        <option value="0" {% if form_data and form_data.ane == '0' %}selected{% endif %}>No (0)</option>
+                                        <option value="1" {% if form_data and form_data.ane == '1' %}selected{% endif %}>Yes (1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <button type="submit" class="btn btn-predict">
+                                <i class="bi bi-virus me-2"></i> Predict Kidney Disease
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

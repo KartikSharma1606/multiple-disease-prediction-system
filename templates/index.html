@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Overview | MedPredict AI{% endblock %}
+{% block page_heading %}Clinical Prediction System Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Welcome Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff;">
+                <div class="card-body p-4 p-md-5">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <span class="badge bg-primary px-3 py-2 rounded-pill mb-3">Diagnostic Intelligence Suite</span>
+                            <h2 class="fw-bold mb-2">Welcome to MedPredict AI</h2>
+                            <p class="text-light opacity-75 mb-4" style="max-width: 650px;">
+                                An advanced multi-disease prediction suite powered by Scikit-Learn machine learning pipelines. 
+                                Select a diagnostic module below or from the sidebar to evaluate patient biomarkers.
+                            </p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{{ url_for('diabetes') }}" class="btn btn-primary px-4 py-2 rounded-3">
+                                    <i class="bi bi-droplet-half me-2"></i> Diabetes Prediction
+                                </a>
+                                <a href="{{ url_for('heart') }}" class="btn btn-outline-light px-4 py-2 rounded-3">
+                                    <i class="bi bi-activity me-2"></i> Heart Disease
+                                </a>
+                                <a href="{{ url_for('kidney') }}" class="btn btn-outline-light px-4 py-2 rounded-3">
+                                    <i class="bi bi-virus me-2"></i> Kidney Disease
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 d-none d-lg-flex justify-content-center">
+                            <div class="text-center p-3 rounded-circle" style="background: rgba(255,255,255,0.06); width: 170px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <i class="bi bi-hospital fs-1 text-primary mb-1"></i>
+                                <div class="fw-bold fs-5">3 Models</div>
+                                <span class="text-secondary small">Active & Loaded</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 Module Cards -->
+    <div class="row g-4 mb-4">
+        <!-- 1. Diabetes Card -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow transition-all border-top border-4 border-primary">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="brand-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                            <i class="bi bi-droplet-half"></i>
+                        </div>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Random Forest</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Diabetes Prediction</h5>
+                    <p class="text-secondary small flex-grow-1">
+                        Predicts diabetes onset likelihood and risk probability using 8 clinical biomarkers (Glucose, Insulin, BMI, DPF, etc.) trained on <code>diabetes.csv</code>.
+                    </p>
+                    <ul class="list-unstyled small text-muted mb-4">
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> 8 Clinical Parameters</li>
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> Risk Probability Percentage</li>
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> Pima Indians Dataset Pipeline</li>
+                    </ul>
+                    <a href="{{ url_for('diabetes') }}" class="btn btn-outline-primary w-100 rounded-3">
+                        Launch Diabetes Form <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Heart Disease Card -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow transition-all border-top border-4 border-warning">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="brand-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Random Forest</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Heart Disease Prediction</h5>
+                    <p class="text-secondary small flex-grow-1">
+                        Detects coronary and cardiovascular risks using 13 clinical cardiac markers (Chest pain, Resting BP, Cholesterol, Thalach, etc.) trained on <code>heart.csv</code>.
+                    </p>
+                    <ul class="list-unstyled small text-muted mb-4">
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> 13 Cardiac Biomarkers</li>
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> Probability Estimation</li>
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> ECG & Stress Analysis</li>
+                    </ul>
+                    <a href="{{ url_for('heart') }}" class="btn btn-outline-warning w-100 rounded-3 text-dark">
+                        Launch Heart Form <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Kidney Disease Card -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm hover-shadow transition-all border-top border-4 border-info">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="brand-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                            <i class="bi bi-virus"></i>
+                        </div>
+                        <span class="badge bg-info-subtle text-info border border-info-subtle">Decision Tree</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Kidney Disease Prediction</h5>
+                    <p class="text-secondary small flex-grow-1">
+                        Analyzes renal health indicators and chronic kidney disease risk utilizing 24 comprehensive blood chemistry and urinalysis metrics trained on <code>kidney_disease.csv</code>.
+                    </p>
+                    <ul class="list-unstyled small text-muted mb-4">
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> 24 Nephrology Parameters</li>
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> Urinalysis & Chemistry</li>
+                        <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i> Binary CKD Classification</li>
+                    </ul>
+                    <a href="{{ url_for('kidney') }}" class="btn btn-outline-info w-100 rounded-3 text-dark">
+                        Launch Kidney Form <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

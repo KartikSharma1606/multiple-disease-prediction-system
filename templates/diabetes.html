@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Diabetes Prediction | MedPredict AI{% endblock %}
+{% block page_heading %}Diabetes Diagnostic Risk Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- Header Hero Banner -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge bg-primary px-3 py-1 rounded-pill">Model: Random Forest Classifier</span>
+                                <span class="badge bg-secondary-subtle text-dark border">Dataset: diabetes.csv</span>
+                            </div>
+                            <h3 class="fw-bold text-dark mb-1">Diabetes Risk Assessment (Random Forest)</h3>
+                            <p class="text-secondary mb-0">Input the 8 clinical parameters below to compute diabetes likelihood and estimated risk probability.</p>
+                        </div>
+                        <div class="d-flex gap-2 align-self-start align-self-md-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger shadow-sm bg-white" onclick="loadHighRiskPreset()">
+                                <i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Sample High-Risk
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-success shadow-sm bg-white" onclick="loadLowRiskPreset()">
+                                <i class="bi bi-shield-check text-success me-1"></i> Sample Low-Risk
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary shadow-sm bg-white" onclick="clearForm()">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Result Alert (if submitted) -->
+    {% if prediction_text %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% if is_diabetic %}
+            <div class="result-card-positive shadow-sm">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i> High Risk Detected
+                            </span>
+                            <span class="badge bg-white text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-semibold">
+                                Risk Probability: {{ risk_percentage }}%
+                            </span>
+                        </div>
+                        <h4 class="fw-bold text-danger mb-1">{{ prediction_text }}</h4>
+                        <p class="text-secondary mb-0">The Random Forest classifier predicts a high probability of diabetes based on the provided biomarkers.</p>
+                    </div>
+                    <div class="text-md-end">
+                        <div class="display-5 fw-bold text-danger">{{ risk_percentage }}%</div>
+                        <span class="text-muted small fw-medium">Estimated Risk Probability</span>
+                    </div>
+                </div>
+
+                <div class="probability-bar-wrapper">
+                    <div class="progress-bar bg-danger h-100" role="progressbar" style="width: {{ risk_percentage }}%;" aria-valuenow="{{ risk_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
+                <div class="row g-2 mt-2">
+                    <div class="col-md-4">
+                        <div class="p-2 bg-white rounded border border-danger-subtle small">
+                            <strong class="text-dark">Recommendation:</strong> Consult an endocrinologist for HbA1c testing.
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-2 bg-white rounded border border-danger-subtle small">
+                            <strong class="text-dark">Dietary Action:</strong> Reduce refined carbohydrates and sugars.
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-2 bg-white rounded border border-danger-subtle small">
+                            <strong class="text-dark">Monitoring:</strong> Track fasting blood glucose levels regularly.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="result-card-negative shadow-sm">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">
+                                <i class="bi bi-check-circle-fill me-1"></i> Low Risk / Healthy
+                            </span>
+                            <span class="badge bg-white text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                                Risk Probability: {{ risk_percentage }}%
+                            </span>
+                        </div>
+                        <h4 class="fw-bold text-success mb-1">{{ prediction_text }}</h4>
+                        <p class="text-secondary mb-0">The Random Forest classifier predicts low risk for diabetes mellitus based on the provided biomarkers.</p>
+                    </div>
+                    <div class="text-md-end">
+                        <div class="display-5 fw-bold text-success">{{ risk_percentage }}%</div>
+                        <span class="text-muted small fw-medium">Estimated Risk Probability</span>
+                    </div>
+                </div>
+
+                <div class="probability-bar-wrapper">
+                    <div class="progress-bar bg-success h-100" role="progressbar" style="width: {{ risk_percentage }}%;" aria-valuenow="{{ risk_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+
+                <div class="p-2 bg-white rounded border border-success-subtle small mt-2">
+                    <strong class="text-dark">Clinical Note:</strong> Maintain healthy physical activity and annual health screening.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Clinical Parameters Form -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold mb-1 text-dark">Clinical Parameters (8 Biomarkers)</h5>
+                        <p class="text-muted small mb-0">All parameters are evaluated by the Random Forest model pipeline trained on diabetes.csv.</p>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Pima Indians Standard</span>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('diabetes') }}" method="POST" id="diabetesForm">
+                        <div class="row g-4">
+                            <!-- 1. Pregnancies -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="pregnancies">
+                                        <i class="bi bi-person-heart text-primary"></i> Pregnancies
+                                    </label>
+                                    <span class="input-unit d-block mb-2">Count (e.g., 0 - 17)</span>
+                                    <input type="number" step="1" min="0" max="25" class="form-control form-control-custom" id="pregnancies" name="pregnancies" placeholder="e.g. 6" value="{{ form_data.pregnancies if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Number of pregnancies</small>
+                                </div>
+                            </div>
+
+                            <!-- 2. Glucose -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="glucose">
+                                        <i class="bi bi-speedometer2 text-danger"></i> Glucose
+                                    </label>
+                                    <span class="input-unit d-block mb-2">mg/dL (e.g., 70 - 200)</span>
+                                    <input type="number" step="any" min="0" max="300" class="form-control form-control-custom" id="glucose" name="glucose" placeholder="e.g. 148" value="{{ form_data.glucose if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Plasma glucose conc. at 2 hrs</small>
+                                </div>
+                            </div>
+
+                            <!-- 3. Blood Pressure -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="blood_pressure">
+                                        <i class="bi bi-heart-pulse text-warning"></i> Blood Pressure
+                                    </label>
+                                    <span class="input-unit d-block mb-2">mm Hg (e.g., 60 - 120)</span>
+                                    <input type="number" step="any" min="0" max="250" class="form-control form-control-custom" id="blood_pressure" name="blood_pressure" placeholder="e.g. 72" value="{{ form_data.blood_pressure if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Diastolic blood pressure</small>
+                                </div>
+                            </div>
+
+                            <!-- 4. Skin Thickness -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="skin_thickness">
+                                        <i class="bi bi-layers text-info"></i> Skin Thickness
+                                    </label>
+                                    <span class="input-unit d-block mb-2">mm (e.g., 10 - 50)</span>
+                                    <input type="number" step="any" min="0" max="120" class="form-control form-control-custom" id="skin_thickness" name="skin_thickness" placeholder="e.g. 35" value="{{ form_data.skin_thickness if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Triceps skin fold thickness</small>
+                                </div>
+                            </div>
+
+                            <!-- 5. Insulin -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="insulin">
+                                        <i class="bi bi-capsule text-primary"></i> Insulin
+                                    </label>
+                                    <span class="input-unit d-block mb-2">mu U/ml (e.g., 15 - 276)</span>
+                                    <input type="number" step="any" min="0" max="900" class="form-control form-control-custom" id="insulin" name="insulin" placeholder="e.g. 0" value="{{ form_data.insulin if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">2-Hour serum insulin</small>
+                                </div>
+                            </div>
+
+                            <!-- 6. BMI -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="bmi">
+                                        <i class="bi bi-body-text text-success"></i> BMI
+                                    </label>
+                                    <span class="input-unit d-block mb-2">kg/m² (e.g., 18.5 - 40.0)</span>
+                                    <input type="number" step="any" min="0" max="80" class="form-control form-control-custom" id="bmi" name="bmi" placeholder="e.g. 33.6" value="{{ form_data.bmi if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Body Mass Index</small>
+                                </div>
+                            </div>
+
+                            <!-- 7. Diabetes Pedigree Function (DPF) -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="dpf">
+                                        <i class="bi bi-diagram-3 text-secondary"></i> DPF (Pedigree)
+                                    </label>
+                                    <span class="input-unit d-block mb-2">Score (e.g., 0.08 - 2.42)</span>
+                                    <input type="number" step="any" min="0" max="5" class="form-control form-control-custom" id="dpf" name="dpf" placeholder="e.g. 0.627" value="{{ form_data.dpf if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Diabetes Pedigree Function</small>
+                                </div>
+                            </div>
+
+                            <!-- 8. Age -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="param-card">
+                                    <label for="age">
+                                        <i class="bi bi-calendar3 text-dark"></i> Age
+                                    </label>
+                                    <span class="input-unit d-block mb-2">Years (e.g., 21 - 85)</span>
+                                    <input type="number" step="1" min="1" max="125" class="form-control form-control-custom" id="age" name="age" placeholder="e.g. 50" value="{{ form_data.age if form_data else '' }}" required>
+                                    <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">Patient age in years</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top">
+                            <span class="text-muted small">
+                                <i class="bi bi-shield-lock-fill me-1 text-primary"></i> Form inputs are processed locally via Random Forest pipeline.
+                            </span>
+                            <div class="d-flex gap-2">
+                                <button type="reset" class="btn btn-outline-secondary px-4 py-2 rounded-3">Reset</button>
+                                <button type="submit" class="btn btn-predict">
+                                    <i class="bi bi-cpu-fill me-2"></i> Run Diabetes Risk Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function loadHighRiskPreset() {
+        document.getElementById('pregnancies').value = "6";
+        document.getElementById('glucose').value = "148";
+        document.getElementById('blood_pressure').value = "72";
+        document.getElementById('skin_thickness').value = "35";
+        document.getElementById('insulin').value = "0";
+        document.getElementById('bmi').value = "33.6";
+        document.getElementById('dpf').value = "0.627";
+        document.getElementById('age').value = "50";
+    }
+
+    function loadLowRiskPreset() {
+        document.getElementById('pregnancies').value = "1";
+        document.getElementById('glucose').value = "85";
+        document.getElementById('blood_pressure').value = "66";
+        document.getElementById('skin_thickness').value = "29";
+        document.getElementById('insulin').value = "0";
+        document.getElementById('bmi').value = "26.6";
+        document.getElementById('dpf').value = "0.351";
+        document.getElementById('age').value = "31";
+    }
+
+    function clearForm() {
+        document.getElementById('diabetesForm').reset();
+    }
+</script>
+{% endblock %}
